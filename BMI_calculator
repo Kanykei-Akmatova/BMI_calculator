@@ -1,0 +1,76 @@
+import tkinter as tk
+from tkinter import messagebox
+import csv
+import os
+
+bmi_file = "bmi_data.csv"
+
+if not os.path.exists(bmi_file):
+    with open(bmi_file, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Name", "Age", "Height", "Weight", "BMI", "Category"])
+def bmi_category(bmi):
+    if bmi < 18.5:
+        return "Underweight"
+    elif 18.5 <= bmi < 24.9:
+        return "Normal"
+    elif 25 <= bmi < 29.9:
+        return "Overweight"
+    else:
+        return "Obesity"
+
+def calculate_bmi():
+    try:
+        name = name_entry.get()
+        age = int(age_entry.get())
+        height = float(height_entry.get()) / 100
+        weight = float(weight_entry.get())
+
+        # Validation
+        if not name or age <= 0 or height <= 0 or weight <= 0:
+            raise ValueError("All fields must be filled with positive values.")
+
+        bmi = weight / (height ** 2)
+        category = bmi_category(bmi)
+
+        result_label.config(text="BMI: " + str(round(bmi, 2)) + " (" + category + ")")
+
+        with open(bmi_file, "a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow([name, age, height * 100, weight, round(bmi, 2), category])
+
+        messagebox.showinfo("Information saved.")
+
+    except ValueError as e:
+        messagebox.showerror("Error")
+
+# Main
+window = tk.Tk()
+window.title("BMI Calculator")
+
+frame = tk.Frame(window)
+frame.grid(row=0, column=0)
+
+tk.Label(frame, text="Name:").grid(row=0, column=0)
+name_entry = tk.Entry(frame)
+name_entry.grid(row=0, column=1)
+
+tk.Label(frame, text="Age:").grid(row=1, column=0)
+age_entry = tk.Entry(frame)
+age_entry.grid(row=1, column=1)
+
+tk.Label(frame, text="Height (cm):").grid(row=2, column=0)
+height_entry = tk.Entry(frame)
+height_entry.grid(row=2, column=1)
+
+tk.Label(frame, text="Weight (kg):").grid(row=3, column=0)
+weight_entry = tk.Entry(frame)
+weight_entry.grid(row=3, column=1, padx=5, pady=5)
+
+calc_button = tk.Button(frame, text="Calculate BMI", command=calculate_bmi)
+calc_button.grid(row=4, column=0)
+
+result_label = tk.Label(frame, text="")
+result_label.grid(row=5, column=0)
+
+window.mainloop()
